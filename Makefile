@@ -22,13 +22,22 @@ endif
 UID := $(shell id -u)
 GUID := $(shell id -g)
 DOCKER_IMAGE := ethanmilon/gcc-cross-i386-elf
+VOLUME_MOUNT := $(PWD):/mnt
+
+# Check if docker is rootful
+USER := $(shell docker info -f "{{println .SecurityOptions}}" | if ! grep -q "rootless"; then echo $(UID):$(GUIUD); else echo "root"; fi)
+
+CONTAINER_ENGINE = docker
 
 xv6.img:
 %::
-	docker run -u $(UID):$(GUID) --rm -v $(PWD):/root -w /root $(DOCKER_IMAGE) make -f Makefile.gcc $@ 
+ifeq ($(CONTAINER_ENGINE), podman)
+	$(eval VOLUME_MOUNT = $(PWD):/mnt:Z)
+endif
+	$(CONTAINER_ENGINE) run -u $(USER) --rm -v $(VOLUME_MOUNT) -w /mnt $(DOCKER_IMAGE) make -f Makefile.gcc $@ 
 
 pull:
-	docker pull $(DOCKER_IMAGE)
+	$(CONTAINER_ENGINE) pull $(DOCKER_IMAGE)
 
 clean: 
 	rm -f *.tex *.dvi *.idx *.aux *.log *.ind *.ilg \
