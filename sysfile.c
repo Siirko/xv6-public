@@ -442,3 +442,9 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+void
+sys_lseek(void)
+{
+  lseek(0,0,0);
+}

@@ -26,12 +26,14 @@ SECTIONS
 		PROVIDE(__STAB_BEGIN__ = .);
 		*(.stab);
 		PROVIDE(__STAB_END__ = .);
+		/* BYTE(0) */
 	}
 
 	.stabstr : {
 		PROVIDE(__STABSTR_BEGIN__ = .);
 		*(.stabstr);
 		PROVIDE(__STABSTR_END__ = .);
+		/* BYTE(0) */
 	}
 
 	/* Adjust the address for the data segment to the next page */
