@@ -87,9 +87,10 @@ atoi(const char *s)
   int n;
 
   n = 0;
+  char is_negative = s[0] == '-' ? -1 : 1;
   while('0' <= *s && *s <= '9')
     n = n*10 + *s++ - '0';
-  return n;
+  return n * is_negative;
 }
 
 void*
