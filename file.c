@@ -156,7 +156,25 @@ filewrite(struct file *f, char *addr, int n)
 }
 
 int
-lseek(int f, int offset, int n)
+lseek(int fd, int offset, int n)
 {
+  // accept only fd type of file
+  // intervales is [0..size] where size is len of size
+
+  //acquire(&ftable.lock);
+  struct file *f = &ftable.file[fd];
+  if(f->ref < 1)
+    panic("?");
+  if(f->type == FD_INODE){
+    ilock(f->ip);
+
+    iunlock(f->ip);
+
+  } 
+  else if (f->type == FD_PIPE)
+    cprintf("FD_PIPE not supported"); // FD_PIPE hard coded way
+  else
+    cprintf("you shouldn't be here");
+  //release(&ftable.lock);
   return 0;
 }
