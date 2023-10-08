@@ -9,6 +9,7 @@
 #include "spinlock.h"
 #include "sleeplock.h"
 #include "file.h"
+#include "fcntl.h"
 
 struct devsw devsw[NDEV];
 struct {
@@ -156,25 +157,29 @@ filewrite(struct file *f, char *addr, int n)
 }
 
 int
-lseek(int fd, int offset, int n)
+filelseek(struct file *f, int offset, int flag)
 {
   // accept only fd type of file
   // intervales is [0..size] where size is len of size
 
-  //acquire(&ftable.lock);
-  struct file *f = &ftable.file[fd];
-  if(f->ref < 1)
-    panic("?");
   if(f->type == FD_INODE){
+    begin_op();
     ilock(f->ip);
-
+    if(flag == SEEK_CUR)
+      f->off += offset % f->ip->size;
+    else if(flag == SEEK_SET)
+      f->off = offset % f->ip->size;
+    else if(flag == SEEK_END)
+      f->off = (offset + f->ip->size - 1) % f->ip->size;
+    else
+      panic("lseek");
     iunlock(f->ip);
-
+    end_op();
+    return f->off;
   } 
   else if (f->type == FD_PIPE)
-    cprintf("FD_PIPE not supported"); // FD_PIPE hard coded way
+    cprintf("FD_PIPE not supported\n"); // FD_PIPE hard coded way
   else
-    cprintf("you shouldn't be here");
-  //release(&ftable.lock);
+    cprintf("you shouldn't be here\n");
   return 0;
 }
