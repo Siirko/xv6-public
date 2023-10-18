@@ -9,6 +9,7 @@
 #include "spinlock.h"
 #include "sleeplock.h"
 #include "file.h"
+#include "stat.h"
 #include "fcntl.h"
 
 struct devsw devsw[NDEV];
@@ -165,14 +166,21 @@ filelseek(struct file *f, int offset, int flag)
   if(f->type == FD_INODE){
     begin_op();
     ilock(f->ip);
-    if(flag == SEEK_CUR)
-      f->off += offset % f->ip->size;
-    else if(flag == SEEK_SET)
-      f->off = offset % f->ip->size;
-    else if(flag == SEEK_END)
-      f->off = (offset + f->ip->size - 1) % f->ip->size;
-    else
-      panic("lseek");
+    char is_tdev_file = f->ip->type == T_DEV ? 1 : 0;
+    switch(flag)
+    {
+      case SEEK_CUR:
+        f->off += is_tdev_file ? offset : offset % f->ip->size;
+        break;
+      case SEEK_SET:
+        f->off = is_tdev_file ? offset : offset % f->ip->size;
+        break;
+      case SEEK_END:
+        f->off = is_tdev_file ? ((f->ip->size-1) + offset) : ((f->ip->size-1) + offset) % f->ip->size;
+        break;
+      default:
+        panic("lseek");
+    }
     iunlock(f->ip);
     end_op();
     return f->off;

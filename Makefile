@@ -185,6 +185,8 @@ UPROGS=\
 	_wc\
 	_zombie\
 	_testlseek\
+	_mknod\
+	_testread\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
