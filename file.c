@@ -166,21 +166,24 @@ filelseek(struct file *f, int offset, int flag)
   if(f->type == FD_INODE){
     begin_op();
     ilock(f->ip);
-    char is_tdev_file = f->ip->type == T_DEV ? 1 : 0;
+    uint noff;
     switch(flag)
     {
       case SEEK_CUR:
-        f->off += is_tdev_file ? offset : offset % f->ip->size;
+        noff = offset;
         break;
       case SEEK_SET:
-        f->off = is_tdev_file ? offset : offset % f->ip->size;
+        noff = f->off + offset;
         break;
       case SEEK_END:
-        f->off = is_tdev_file ? ((f->ip->size-1) + offset) : ((f->ip->size-1) + offset) % f->ip->size;
+        noff = f->ip->size + offset;
         break;
       default:
         panic("lseek");
     }
+    if (f->ip->type != T_DEV && noff > f->ip->size)
+      return -1;
+    f->off = noff;
     iunlock(f->ip);
     end_op();
     return f->off;
