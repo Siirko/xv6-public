@@ -3,6 +3,8 @@
 #include "fcntl.h"
 #include "user.h"
 #include "x86.h"
+#include "memlayout.h"
+
 
 char*
 strcpy(char *s, const char *t)
@@ -103,4 +105,31 @@ memmove(void *vdst, const void *vsrc, int n)
   while(n-- > 0)
     *dst++ = *src++;
   return vdst;
+}
+
+int
+getpid(void)
+{
+  int* pid=(int*)VSCADDR;
+  return *pid;
+}
+
+int
+getppid(void)
+{
+  int* ppid=(int*)VSCADDR+sizeof(int);
+  return *ppid;
+}
+
+
+int
+getpid2(void)
+{
+  return 0;
+}
+
+int
+getppid2(void)
+{
+  return 0;
 }

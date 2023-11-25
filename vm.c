@@ -385,6 +385,32 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
   return 0;
 }
 
+void 
+*vsc_alloc(pde_t *pgdir, int n)
+{
+  char *mem;
+  mem = kalloc();
+  if(mem == 0){
+    cprintf("vsc_alloc out of memory\n");
+    return 0;
+  }
+  memset(mem, 0, PGSIZE);
+  if(mappages(pgdir, (char*)VSCADDR, PGSIZE, V2P(mem), PTE_U) < 0){
+    cprintf("vsc_alloc out of memory (2)\n");
+    kfree(mem);
+    return 0;
+  }
+  return (void*)mem;
+}
+
+void*
+vsc_get(pde_t *pgdir, int n)
+{
+  return uva2ka(pgdir, (char*)VSCADDR);
+}
+
+
+
 //PAGEBREAK!
 // Blank page.
 //PAGEBREAK!

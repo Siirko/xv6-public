@@ -199,6 +199,14 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
+  int* vsc_addr;
+  if((vsc_addr = vsc_alloc(np->pgdir, 0)) == 0)
+  {
+    kfree(np->kstack);
+    np->kstack = 0;
+    np->state = UNUSED;
+    return -1;
+  }
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -211,6 +219,8 @@ fork(void)
   safestrcpy(np->name, curproc->name, sizeof(curproc->name));
 
   pid = np->pid;
+  vsc_addr[0] = pid;
+  vsc_addr[1] = curproc->pid;
 
   acquire(&ptable.lock);
 
@@ -220,7 +230,6 @@ fork(void)
 
   return pid;
 }
-
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
 // until its parent calls wait() to find out it exited.
@@ -258,6 +267,10 @@ exit(void)
       p->parent = initproc;
       if(p->state == ZOMBIE)
         wakeup1(initproc);
+      int* vsc_addr;
+      if((vsc_addr = vsc_get(p->pgdir, 0)) == 0)
+        panic("vsc_alloc failed");
+      vsc_addr[1] = p->parent->pid;
     }
   }
 

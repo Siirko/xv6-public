@@ -38,6 +38,14 @@ exec(char *path, char **argv)
   if((pgdir = setupkvm()) == 0)
     goto bad;
 
+  int* vsc_addr;
+  if((vsc_addr = vsc_alloc(pgdir, 0)) == 0){
+    cprintf("exec: fail to get vsc_addr\n");
+    return -1;
+  }
+  vsc_addr[0] = curproc->pid;
+
+  
   // Load program into memory.
   sz = 0;
   for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){

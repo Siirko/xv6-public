@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "proc.h": "c"
+        "*.tsx": "typescriptreact",
+        "proc.h": "c",
+        "mmu.h": "c",
+        "memlayout.h": "c"
     }
 }
