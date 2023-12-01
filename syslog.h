@@ -11,6 +11,8 @@
 #define	MAX_SENDER	8	// maximum size of sender
 #define	MAX_EVENT	68	// maximum size of event message
 
+#define NEVENTS 16 // total of events
+
 #define	LOGDEVICE	"/klog"	// device to use
 
 struct logev {			// 80 bytes (4 + 8 + 68)

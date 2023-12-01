@@ -1,5 +1,13 @@
 {
     "files.associations": {
-        "proc.h": "c"
+        "*.tsx": "typescriptreact",
+        "proc.h": "c",
+        "syslog.h": "c",
+        "stat.h": "c",
+        "fcntl.h": "c",
+        "user.h": "c",
+        "types.h": "c",
+        "x86.h": "c",
+        "defs.h": "c"
     }
 }
