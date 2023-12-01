@@ -56,7 +56,8 @@ klogwrite(struct inode *ip, char *buf, int n)
         ilock(ip);
         acquire(&klogloc);
         uint total_asked = n / sizeof(struct logev);
-        if (n == 0)
+        if (n == 0) // based on the fac that uint trunc value and if it is < 1
+                    // then it will be 0
         {
             iunlock(ip);
             return 0;
@@ -82,11 +83,25 @@ klogwrite(struct inode *ip, char *buf, int n)
     return 0;
 }
 
+
+int klogopen(struct inode *in, int omode)
+{
+    return 0;
+}
+
+void
+klogclose(struct inode *in, struct file* f)
+{
+
+}
+
 void
 kloginit(void)
 {
     // initlock(&klogloc, "klog");
     devsw[KLOG].read = klogread;
     devsw[KLOG].write = klogwrite;
+    devsw[KLOG].open = klogopen;
+    devsw[KLOG].close = klogclose;
     logevempty = 0;
 }

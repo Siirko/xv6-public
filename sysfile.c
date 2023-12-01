@@ -99,6 +99,15 @@ sys_close(void)
   if(argfd(0, &fd, &f) < 0)
     return -1;
   myproc()->ofile[fd] = 0;
+  if(f->ip->type == T_DEV)
+  {
+    if(devsw[f->ip->major].close != 0)
+    {
+      int res = devsw[f->ip->major].close;
+      if(res == -1)
+        return -1;
+    }
+  }
   fileclose(f);
   return 0;
 }
@@ -311,6 +320,19 @@ sys_open(void)
       iunlockput(ip);
       end_op();
       return -1;
+    }
+    if(ip->type == T_DEV)
+    {
+      if(devsw[ip->major].open != 0)
+      {
+        int res = devsw[ip->major].open(ip, 0) ; // I don't know which omode put
+        if(res == -1)
+        {
+          iunlockput(ip);
+          end_op();
+          return -1;
+        }
+      }
     }
   }
 
